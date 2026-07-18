@@ -1,0 +1,3 @@
+Maximum probability to be at site 10: 0.5996150020694793
+Total evolution time T: 600
+Optimal parameters: \gamma_2 = 0.823529411764706, time = 468.975

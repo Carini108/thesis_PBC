@@ -1,0 +1,3 @@
+Maximum probability to be at site 10: 0.7255790931962229
+Total evolution time T: 200
+Optimal parameters: \phi_1 = -0.0006308418983111963, time = 95.72500000000001
