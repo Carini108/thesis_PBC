@@ -1,0 +1,1 @@
+Minimum mean hitting time to site 10: 5.536882943143814\nNumber of Monte Carlo runs per point M: 10\nOptimal parameters: \phi_1 = -0.03309704635052793, \tau = 1.1780602006688963\n

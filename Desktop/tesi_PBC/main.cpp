@@ -223,7 +223,8 @@ int main() {
     std::string filename = "phi1_vs_tau_mean_hitting_time_PVM_gamma2_" + 
                            std::to_string(static_cast<int>(gamma_2)) + ".0_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
-                           std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points);
+                           std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points) + 
+                           std::to_string(M)+ "_runs";
 
     std::ofstream f(filename + ".txt");
     f << "Minimum mean hitting time to site " << target_site << ": " << min_time << "\n";
