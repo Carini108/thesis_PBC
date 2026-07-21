@@ -5,6 +5,7 @@
 #include <random>
 #include <fstream>
 #include <iomanip>
+#include <chrono> // Added for time measurement
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
@@ -48,21 +49,24 @@ void on_site_PVM(VectorXc& state, int target_site, bool& detection_successful,
 // ####################################################################################
 
 int main() {
+    // Start timing execution
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     // ####################################################################################
-    // IDEA: mean hitting times over a 2D grid of tau vs phi_1 for a fixed size N
+    // IDEA: mean hitting times over a 2D grid of tau vs gamma_2 for a fixed size N
     // ####################################################################################
 
     // ##########################################
     // 1. define parameters for a qw on a line
     // ##########################################
 
-    // test different phis and taus (2D GRID) for fixed size N
+    // test different gamma_2s and taus (2D GRID) for fixed size N
     int num_sites = 20;
     int target_site = num_sites / 2; // opposite end
-    int num_phi_points = 300; // horizontal resolution
+    int num_gamma2_points = 300; // horizontal resolution
     int num_tau_points = 300; // vertical resolution
-    double phi_min = -M_PI / num_sites;
-    double phi_max = +M_PI / num_sites;
+    double gamma2_min = 0.0;
+    double gamma2_max = 1.0;
     double tau_min = 0.02;
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
@@ -81,16 +85,15 @@ int main() {
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
     double gamma_1 = 1.0;
-    double gamma_2 = 0.3;
-    //phi_1 = 0.0
+    double phi_1 = 0.0;
     double phi_2 = 0.0;
-    //phase_1 = np.exp(1j * phi_1)
+    Complex phase_1 = std::polar(1.0, phi_1);
     Complex phase_2 = std::polar(1.0, phi_2);
 
     // start constructing the grid by defining the 'checkerboard'...
-    std::vector<double> phi_values(num_phi_points);
-    for (int i = 0; i < num_phi_points; ++i) {
-        phi_values[i] = phi_min + i * (phi_max - phi_min) / (num_phi_points - 1);
+    std::vector<double> gamma2_values(num_gamma2_points);
+    for (int i = 0; i < num_gamma2_points; ++i) {
+        gamma2_values[i] = gamma2_min + i * (gamma2_max - gamma2_min) / (num_gamma2_points - 1);
     }
     std::vector<double> tau_values(num_tau_points);
     for (int i = 0; i < num_tau_points; ++i) {
@@ -98,7 +101,7 @@ int main() {
     }
 
     // ...and setting all values to zero
-    Eigen::MatrixXd mean_hitting_times = Eigen::MatrixXd::Zero(num_tau_points, num_phi_points);
+    Eigen::MatrixXd mean_hitting_times = Eigen::MatrixXd::Zero(num_tau_points, num_gamma2_points);
 
     std::cout << "Parameters initialized!\n";
     std::cout << "===================================\n";
@@ -106,14 +109,13 @@ int main() {
 
     // OpenMP parallelization over the outer grid loop for maximum speed
     #pragma omp parallel for schedule(dynamic)
-    for (int p_idx = 0; p_idx < num_phi_points; ++p_idx) { // the first variable is the index, the second the value
+    for (int g_idx = 0; g_idx < num_gamma2_points; ++g_idx) { // the first variable is the index, the second the value
         
         // for reproducibility (thread-safe seeding)
-        std::mt19937 gen(13 + p_idx); 
+        std::mt19937 gen(13 + g_idx); 
         std::uniform_real_distribution<double> dis(0.0, 1.0);
 
-        double phi_1 = phi_values[p_idx];
-        Complex phase_1 = std::polar(1.0, phi_1);
+        double gamma_2 = gamma2_values[g_idx];
 
         // ##########################################
         // 2. Laplacian matrix for a ring (L = D - A)
@@ -155,7 +157,7 @@ int main() {
 
         #pragma omp critical
         {
-            std::cout << "State at time = 0 initialized! phi_1 = " << phi_1 << "\n";
+            std::cout << "State at time = 0 initialized! gamma_2 = " << gamma_2 << "\n";
         }
 
         // ##########################################
@@ -188,12 +190,12 @@ int main() {
                 total_hitting_time += time;
             }
 
-            mean_hitting_times(t_idx, p_idx) = total_hitting_time / M; // mean
+            mean_hitting_times(t_idx, g_idx) = total_hitting_time / M; // mean
         }
 
         #pragma omp critical
         {
-            std::cout << "phi_1 step number " << p_idx + 1 << "/" << num_phi_points << "\n";
+            std::cout << "gamma_2 step number " << g_idx + 1 << "/" << num_gamma2_points << "\n";
         }
     }
 
@@ -203,17 +205,17 @@ int main() {
     std::cout << "All simulations completed!\n";
     std::cout << "===================================\n";
 
-    std::string filename_results = "RESULTS_mean_hitting_time_PVM_gamma2_" + 
-                           std::to_string(gamma_2) + "_N_" + 
+    std::string filename_results = "RESULTS_mean_hitting_time_PVM_phi1_" + 
+                           std::to_string(phi_1) + "_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
-                           std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points) + "_" +
+                           std::to_string(num_gamma2_points) + "x" + std::to_string(num_tau_points) + "_" +
                            std::to_string(M)+ "_runs.txt";
 
     // Save grid data to file for Python plotting
     std::ofstream grid_file(filename_results);
     for (int i = 0; i < num_tau_points; ++i) {
-        for (int j = 0; j < num_phi_points; ++j) {
-            grid_file << mean_hitting_times(i, j) << (j == num_phi_points - 1 ? "" : " ");
+        for (int j = 0; j < num_gamma2_points; ++j) {
+            grid_file << mean_hitting_times(i, j) << (j == num_gamma2_points - 1 ? "" : " ");
         }
         grid_file << "\n";
     }
@@ -223,24 +225,30 @@ int main() {
     // 6. find shortest time and associated parameters
     // ##########################################
 
-    int min_tau_idx, min_phi_idx;
-    double min_time = mean_hitting_times.minCoeff(&min_tau_idx, &min_phi_idx);
+    int min_tau_idx, min_gamma2_idx;
+    double min_time = mean_hitting_times.minCoeff(&min_tau_idx, &min_gamma2_idx);
 
     double optimal_tau_val = tau_values[min_tau_idx];
-    double optimal_phi_val = phi_values[min_phi_idx];
+    double optimal_gamma2_val = gamma2_values[min_gamma2_idx];
 
-    std::string filename = "phi1_vs_tau_mean_hitting_time_PVM_gamma2_" + 
-                           std::to_string(static_cast<int>(gamma_2)) + ".0_N_" + 
+    std::string filename = "gamma2_vs_tau_mean_hitting_time_PVM_phi1_" + 
+                           std::to_string(static_cast<int>(phi_1)) + ".0_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
-                           std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points) + 
+                           std::to_string(num_gamma2_points) + "x" + std::to_string(num_tau_points) + 
                            std::to_string(M)+ "_runs";
 
     std::ofstream f(filename + ".txt");
     f << "Minimum mean hitting time to site " << target_site << ": " << min_time << "\n";
     f << "Number of Monte Carlo runs per point M: " << M << "\n";
-    f << "Optimal parameters: \\phi_1 = " << optimal_phi_val << ", \\tau = " << optimal_tau_val << "\n";
+    f << "Optimal parameters: \\gamma_2 = " << optimal_gamma2_val << ", \\tau = " << optimal_tau_val << "\n";
     f.close();
 
+    // Stop timing execution and calculate total elapsed time
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+
     std::cout << "Data exported successfully! Run the Python script to plot.\n";
+    std::cout << "Total execution time: " << std::fixed << std::setprecision(2) << elapsed.count() << " seconds.\n";
+    
     return 0;
 }
