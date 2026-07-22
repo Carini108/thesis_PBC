@@ -63,15 +63,15 @@ int main() {
     // test different gamma_2s and taus (2D GRID) for fixed size N
     int num_sites = 20;
     int target_site = num_sites / 2; // opposite end
-    int num_gamma2_points = 300; // horizontal resolution
-    int num_tau_points = 300; // vertical resolution
+    int num_gamma2_points = 400; // horizontal resolution
+    int num_tau_points = 400; // vertical resolution
     double gamma2_min = 0.0;
     double gamma2_max = 1.0;
     double tau_min = 0.02;
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
     double T_max = 200.0; // cutoff time (limited resource)
-    int M = 1000; // number of samples of the hitting time
+    int M = 2000; // number of samples of the hitting time
 
     std::cout << "-----------------------------------\n";
     std::cout << "Number of sites N = " << num_sites << "\n";
@@ -85,7 +85,7 @@ int main() {
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
     double gamma_1 = 1.0;
-    double phi_1 = 0.0;
+    double phi_1 = 0.5*M_PI/num_sites;
     double phi_2 = 0.0;
     Complex phase_1 = std::polar(1.0, phi_1);
     Complex phase_2 = std::polar(1.0, phi_2);
@@ -231,11 +231,11 @@ int main() {
     double optimal_tau_val = tau_values[min_tau_idx];
     double optimal_gamma2_val = gamma2_values[min_gamma2_idx];
 
-    std::string filename = "gamma2_vs_tau_mean_hitting_time_PVM_phi1_" + 
-                           std::to_string(static_cast<int>(phi_1)) + ".0_N_" + 
+    std::string filename = "RESULTS_gamma2_vs_tau_mean_hitting_time_PVM_phi1_" + 
+                           std::to_string(phi_1) + "_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
-                           std::to_string(num_gamma2_points) + "x" + std::to_string(num_tau_points) + 
-                           std::to_string(M)+ "_runs";
+                           std::to_string(num_gamma2_points) + "x" + std::to_string(num_tau_points) + "_" +
+                           std::to_string(M)+ "_runs.txt";
 
     std::ofstream f(filename + ".txt");
     f << "Minimum mean hitting time to site " << target_site << ": " << min_time << "\n";

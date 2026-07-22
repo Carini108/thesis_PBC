@@ -1,0 +1,3 @@
+Minimum mean hitting time to site 10: 16.6702
+Number of Monte Carlo runs per point M: 2000
+Optimal parameters: \gamma_2 = 1, \tau = 0.927719
