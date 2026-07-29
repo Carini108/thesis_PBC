@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
+# Simulation Parameters
+num_sites = 20
+M = 1500
+
 # 1. Load Metadata
 with open("RESULTS_3D_metadata.txt", "r") as f:
     lines = f.readlines()
@@ -17,7 +21,8 @@ gamma2_vals = np.linspace(gamma2_min, gamma2_max, num_gamma2)
 tau_vals = np.linspace(tau_min, tau_max, num_tau)
 
 # 2. Load Binary Data & Reshape to 3D Tensor (phi_1, gamma_2, tau)
-data = np.fromfile("RESULTS_3D_hitting_times.bin", dtype=np.float64)
+filename_results = f"RESULTS_mean_hitting_time_PVM_N_{num_sites}_resolution_{num_phi1}x{num_gamma2}x{num_tau}_{M}_runs.bin"
+data = np.fromfile(filename_results, dtype=np.float64)
 data = data.reshape((num_phi1, num_gamma2, num_tau))
 
 # 3. Setup Interactive Plotting Window
@@ -38,9 +43,9 @@ im = ax.imshow(
 )
 
 cbar = fig.colorbar(im, ax=ax)
-cbar.set_label('Mean Hitting Time', rotation=270, labelpad=15)
+cbar.set_label('mean detection time', rotation=270, labelpad=15)
 
-ax.set_title(f"Tomographic Slice at $\gamma_2 = {gamma2_vals[initial_g_idx]:.3f}$")
+ax.set_title(f"$\gamma_2 = {gamma2_vals[initial_g_idx]:.3f}$")
 ax.set_xlabel(r"$\phi_1$")
 ax.set_ylabel(r"$\tau$")
 
@@ -61,7 +66,7 @@ def update(val):
     new_slice = data[:, g_idx, :].T
     im.set_data(new_slice)
     im.set_clim(vmin=new_slice.min(), vmax=new_slice.max())
-    ax.set_title(f"Tomographic Slice at $\gamma_2 = {gamma2_vals[g_idx]:.3f}$")
+    ax.set_title(f"$\gamma_2 = {gamma2_vals[g_idx]:.3f}$")
     fig.canvas.draw_idle()
 
 gamma2_slider.on_changed(update)
