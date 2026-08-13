@@ -31,7 +31,7 @@ plt.subplots_adjust(bottom=0.20)
 
 initial_g_idx = num_gamma2 // 2
 
-# Slice along gamma_2: data[:, g_idx, :] yields (phi_1 vs tau) heatmap
+# Slice along gamma_2: data[:, g_idx, :] yields (phi_1 vs tau) heatmap 
 slice_data = data[:, initial_g_idx, :].T  # Transpose so tau is Y-axis and phi_1 is X-axis
 
 im = ax.imshow(
