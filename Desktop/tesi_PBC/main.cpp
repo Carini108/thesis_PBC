@@ -59,15 +59,15 @@ int main() {
     // test different phis and taus (2D GRID) for fixed size N
     int num_sites = 20;
     int target_site = num_sites / 2; // opposite end
-    int num_phi_points = 300; // horizontal resolution
-    int num_tau_points = 300; // vertical resolution
+    int num_phi_points = 200; // horizontal resolution
+    int num_tau_points = 200; // vertical resolution
     double phi_min = -M_PI / num_sites;
     double phi_max = +M_PI / num_sites;
     double tau_min = 0.02;
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
-    double T_max = 200.0; // cutoff time (limited resource)
-    int M = 1000; // number of samples of the hitting time
+    double T_max = 180.0; // cutoff time (limited resource)
+    int M = 100; // number of samples of the hitting time
 
     std::cout << "-----------------------------------\n";
     std::cout << "Number of sites N = " << num_sites << "\n";
