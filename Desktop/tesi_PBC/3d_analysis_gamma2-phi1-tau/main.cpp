@@ -65,8 +65,8 @@ int main() {
 
     int num_sites = 20;
     int target_site = num_sites / 2; // opposite end
-    int num_phi1_points = 56;
-    int num_gamma2_points = 100; // horizontal resolution
+    int num_phi1_points = 56; // horizontal resolution
+    int num_gamma2_points = 100; // gamma_2 steps (to be scrolled...)
     int num_tau_points = 100; // vertical resolution
     double phi1_min = 0.0;
     double phi1_max = M_PI / num_sites;
@@ -168,7 +168,7 @@ int main() {
             psi_0(0) = 1.0; // start at node 0
 
             // ##########################################
-            // 4. time evolution (time-indep. H) without PVM
+            // 4. time evolution (time-indep. H) with PVM
             // ##########################################
 
             MatrixXc H = gamma * L;
@@ -199,7 +199,7 @@ int main() {
 
                 size_t flat_idx = (size_t)p_idx * num_gamma2_points * num_tau_points 
                                 + (size_t)g_idx * num_tau_points 
-                                + (size_t)t_idx;
+                                + (size_t)t_idx; // take the correct index in the cubic grating
 
                 mean_hitting_times_3d[flat_idx] = total_hitting_time / M; // mean
             }
@@ -211,7 +211,9 @@ int main() {
         }
     }
 
-    // finish: 
+    // ##########################################
+    // 5. finish: 
+    // ##########################################
 
     std::cout << "===================================\n";
     std::cout << "All simulations completed!\n";
@@ -224,12 +226,12 @@ int main() {
                            std::to_string(num_tau_points) + "_" + 
                            std::to_string(M)+ "_runs.bin";
 
-    // Save grid data to file for Python plotting 
+    // save grid data to file for Python plotting 
     std::ofstream grid_file(filename_results, std::ios::binary); 
     grid_file.write(reinterpret_cast<const char*>(mean_hitting_times_3d.data()), mean_hitting_times_3d.size() * sizeof(double));
     grid_file.close();
 
-    // Export grid parameter metadata to a text file for Python to read
+    // export grid parameter metadata to a text file for Python to read
     std::ofstream meta("RESULTS_3D_metadata.txt");
     meta << num_phi1_points << " " << phi1_min << " " << phi1_max << "\n";
     meta << num_gamma2_points << " " << gamma2_min << " " << gamma2_max << "\n";
@@ -250,6 +252,7 @@ int main() {
         }
     }
 
+    // calculate the index in the 3d space
     size_t min_p_idx = min_idx / (num_gamma2_points * num_tau_points);
     size_t rem = min_idx % (num_gamma2_points * num_tau_points);
     size_t min_g_idx = rem / num_tau_points;
