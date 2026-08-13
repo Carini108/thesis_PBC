@@ -39,7 +39,9 @@ im = ax.imshow(
     origin='lower',
     aspect='auto',
     extent=[phi1_vals[0], phi1_vals[-1], tau_vals[0], tau_vals[-1]],
-    cmap='viridis_r'
+    cmap='viridis_r',
+    vmin=data.min(),
+    vmax=data.max()
 )
 
 cbar = fig.colorbar(im, ax=ax)
@@ -65,7 +67,6 @@ def update(val):
     g_idx = int(gamma2_slider.val)
     new_slice = data[:, g_idx, :].T
     im.set_data(new_slice)
-    im.set_clim(vmin=new_slice.min(), vmax=new_slice.max())
     ax.set_title(f"$\gamma_2 = {gamma2_vals[g_idx]:.3f}$")
     fig.canvas.draw_idle()
 
