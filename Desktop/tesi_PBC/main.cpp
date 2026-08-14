@@ -81,7 +81,7 @@ int main() {
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
     double gamma_1 = 1.0;
-    double gamma_2 = 0.3;
+    double gamma_2 = 0.1;
     //phi_1 = 0.0
     double phi_2 = 0.0;
     //phase_1 = np.exp(1j * phi_1)
