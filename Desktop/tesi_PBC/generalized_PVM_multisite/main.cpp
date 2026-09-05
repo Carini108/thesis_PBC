@@ -117,28 +117,15 @@ int main() {
     // ##########################################
 
     // test different phis and taus (2D GRID) for fixed size N
-    int num_sites = 21;
+    int num_sites = 20;
 
     // ##########################################
     // construct relevant TARGETS
     // ##########################################
-    // site at the opposite end
-    int target_site = num_sites / 2; 
-    // equal-amplitude superposition 
-    VectorXc target_state = VectorXc::Zero(num_sites); // becomes chi in the function
-    double relative_phase = 0.0; // to get the + superpositions
-    //double relative_phase = M_PI; // to get the - superpositions
-    Complex exp_rel_phase = std::polar(1.0, relative_phase);
-    target_state(num_sites/2) = 1.0;
-    target_state(num_sites/2 + 1) = 1.0 * exp_rel_phase;
-    double norm = target_state.norm();
-    if (norm > 0) {
-            target_state = target_state / norm;
-        } else {
-            std::cout<<"Unphysical zero-length state!"<<std::endl;
-            std::exit(1);
-        }
-    MatrixXc proj_P = create_state_projector(target_state);
+    // local measurement on 2D subspace (cannot tell on which one the particle is)
+    const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
+    MatrixXc multisite_projector = create_subspace_projector(num_sites, target_sites);
+    std::cout << "Multisite Projector:\n" << multisite_projector << "\n"; // print to check...
 
     // more parameters for the grid
     int num_phi_points = 150; // horizontal resolution
@@ -149,7 +136,7 @@ int main() {
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
     double T_max = 180.0; // cutoff time (limited resource)
-    int M = 1000; // number of samples of the hitting time
+    int M = 500; // number of samples of the hitting time
 
     std::cout << "-----------------------------------\n";
     std::cout << "Number of sites N = " << num_sites << "\n";
@@ -267,7 +254,7 @@ int main() {
 
 // ##########################################
 // HERE IS WHERE THE CODE BECOMES GENERALIZED!
-                    generalized_PVM(psi_step, proj_P, detected, gen, dis);
+                    generalized_PVM(psi_step, multisite_projector, detected, gen, dis);
                     // in lieu of on_site_PVM(psi_step, target_site, detected, gen, dis); 
 // ##########################################
 
@@ -291,15 +278,27 @@ int main() {
     std::cout << "All simulations completed!\n";
     std::cout << "===================================\n";
 
-    std::string filename_results = "RESULTS_mean_hitting_time_PVM_gamma2_" + 
-                           std::to_string(gamma_2) 
-                           + "_N_" + std::to_string(num_sites) 
-                           + "_RELphase_" + std::to_string(relative_phase) 
-                           + "_resolution_" + std::to_string(num_phi_points) 
-                           + "x" + std::to_string(num_tau_points) + "_" +
-                           std::to_string(M)+ "_runs.txt";
+    // all targets
+    std::string target_sites_str = "";
+    for (size_t i = 0; i < target_sites.size(); ++i) {
+        target_sites_str += std::to_string(target_sites[i]);
+        if (i < target_sites.size() - 1) target_sites_str += "_";
+    }
+    std::cout<<target_sites_str<<std::endl;
 
-    // Save grid data to file for Python plotting
+     // filenaming
+    std::string base_filename = "mean_hitting_time_PVM_gamma2_" + std::to_string(gamma_2) + 
+                                "_N_" + std::to_string(num_sites) + 
+                                "_target_" + target_sites_str + 
+                                "_resolution_" + std::to_string(num_phi_points) + 
+                                "x" + std::to_string(num_tau_points) + 
+                                "_" + std::to_string(M) + "_runs";
+    // multiple files:
+    std::string filename_results = "RESULTS_" + base_filename + ".txt";
+    std::string filename_optimal_values = "phi1_vs_tau_" + base_filename + ".txt";
+
+
+    // save grid data to file for Python plotting
     std::ofstream grid_file(filename_results);
     for (int i = 0; i < num_tau_points; ++i) {
         for (int j = 0; j < num_phi_points; ++j) {
@@ -319,16 +318,8 @@ int main() {
     double optimal_tau_val = tau_values[min_tau_idx];
     double optimal_phi_val = phi_values[min_phi_idx];
 
-    std::string filename_optimal_values = "phi1_vs_tau_mean_hitting_time_PVM_gamma2_" + 
-                           std::to_string(gamma_2) 
-                           + "_N_" + std::to_string(num_sites) 
-                           + "_RELphase_" + std::to_string(relative_phase) 
-                           + "_resolution_" + std::to_string(num_phi_points) 
-                           + "x" + std::to_string(num_tau_points) 
-                           + "_" + std::to_string(M)+ "_runs";
-
-    std::ofstream f(filename_optimal_values + ".txt");
-    f << "Minimum mean hitting time to site " << target_site << ": " << min_time << "\n";
+    std::ofstream f(filename_optimal_values);
+    f << "Minimum mean hitting time: " << min_time << "\n";
     f << "Number of Monte Carlo runs per point M: " << M << "\n";
     f << "Optimal parameters: \\phi_1 = " << optimal_phi_val << ", \\tau = " << optimal_tau_val << "\n";
     f.close();
