@@ -1,26 +1,24 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -03 -Wall -fopenmp
+CXX = /opt/homebrew/opt/llvm/bin/clang++
 
-EIGEN_INC ?= -I/usr/include/eigen3 -I/usr/include/eigen3
+CXXFLAGS = -std=c++17 -O3 -Wall \
+           -I/opt/homebrew/include/eigen3 \
+           -I/opt/homebrew/opt/libomp/include \
+           -isysroot $(shell xcrun --show-sdk-path) \
+           -Xpreprocessor -fopenmp
+
+LDFLAGS = -L/opt/homebrew/opt/libomp/lib -lomp
 
 TARGET = simulate_qw
 OBJS = main.o first_detection.o
 
-all: $(TARGET)
-
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
-main.o: main.cpp first_detection.hpp
-	$(CXX) $(CXXFLAGS) $(EIGEN_INC) -c $< -o $@
+main.o: main.cpp
+	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
-first_detection.o: first_detection.cpp first_detection.hpp
-	$(CXX) $(CXXFLAGS) $(EIGEN_INC) -c $< -o $@
+first_detection.o: first_detection.cpp
+	$(CXX) $(CXXFLAGS) -c first_detection.cpp -o first_detection.o
 
 clean:
 	rm -f $(OBJS) $(TARGET)
-
-run: $(TARGET)
-	./$(TARGET)
-
-.PHONY: all clean run
