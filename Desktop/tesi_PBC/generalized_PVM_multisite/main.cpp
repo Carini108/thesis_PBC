@@ -117,13 +117,14 @@ int main() {
     // ##########################################
 
     // test different phis and taus (2D GRID) for fixed size N
-    int num_sites = 20;
+    int num_sites = 21;
 
     // ##########################################
     // construct relevant TARGETS
     // ##########################################
-    // local measurement on 2D subspace (cannot tell on which one the particle is)
-    const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
+    // local measurement on m-D subspace (cannot tell on which one the particle is)
+    const std::vector<int> target_sites = {num_sites/2}; 
+    //const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
     MatrixXc multisite_projector = create_subspace_projector(num_sites, target_sites);
     std::cout << "Multisite Projector:\n" << multisite_projector << "\n"; // print to check...
 
@@ -205,14 +206,14 @@ int main() {
 
         // add periodic boundary conditions (it becomes a ring...)
         if (num_sites > 1) {
-            L(0, num_sites - 1) += -gamma_1;
-            L(num_sites - 1, 0) += -gamma_1;
+            L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
+            L(num_sites - 1, 0) += -gamma_1 * phase_1;
         }
         if (num_sites > 2) {
-            L(0, num_sites - 2) += -gamma_2;
-            L(num_sites - 2, 0) += -gamma_2;
-            L(1, num_sites - 1) += -gamma_2;
-            L(num_sites - 1, 1) += -gamma_2;
+            L(0, num_sites - 2) += -gamma_2 * std::conj(phase_2);
+            L(num_sites - 2, 0) += -gamma_2 * phase_2;
+            L(1, num_sites - 1) += -gamma_2 * std::conj(phase_2);
+            L(num_sites - 1, 1) += -gamma_2 * phase_2;
         }
 
         // ##########################################

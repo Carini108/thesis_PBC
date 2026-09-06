@@ -40,3 +40,8 @@ Total execution time: 10384.8 seconds.
 
 
 ================================  ================================
+
+
+
+RUN WITH M = 1000 AND THE ABOVE PARAMETERS FOR ALL KINDS OF SMEARING
+THEN REPEAT WITH JUST S_2 (MORE EFFICIENT, NO AVERAGE)

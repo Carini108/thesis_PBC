@@ -8,8 +8,10 @@ import math
 ##########################################
 
 # test different phis and taus (2D GRID) for fixed size N
-num_sites = 20
-target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # opposite end
+num_sites = 21
+target_site = f'{num_sites // 2}' # SINGLE @ opposite end
+#target_site = f'{num_sites // 2}_{num_sites // 2 + 1}' # DOUBLE @ opposite end
+#target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # TRIPLE @ opposite end
 print(target_site)
 relative_phase = 0.0
 num_phi_points = 150 # horizontal resolution
@@ -54,6 +56,7 @@ tick_labels = [rf'$-\pi/N$', rf'$-\pi/(2N)$', rf'$0$', rf'$+\pi/(2N)$', rf'$+\pi
 plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)
+cbar.set_label(rf'$\langle n\tau \rangle$', fontsize=fonts)
 filename = rf'CPLUSPLUS_phi1_vs_tau_mean_hitting_time_PVM_gamma2_{gamma_2}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}'
 plt.savefig(filename+'.pdf')
 plt.show()

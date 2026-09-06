@@ -53,6 +53,7 @@ tick_labels = [rf'$-\pi/N$', rf'$-\pi/(2N)$', rf'$0$', rf'$+\pi/(2N)$', rf'$+\pi
 plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)
+cbar.set_label(rf'$\langle n\tau \rangle$', fontsize=fonts)
 filename = rf'CPLUSPLUS_phi1_vs_tau_mean_hitting_time_PVM_gamma2_{gamma_2}_N_{num_sites}_RELphase_{relative_phase}_resolution_{num_phi_points}x{num_tau_points}'
 plt.savefig(filename+'.pdf')
 plt.show()

@@ -153,14 +153,14 @@ RUN_NONE:
 
             // add periodic boundary conditions (it becomes a ring...)
             if (num_sites > 1) {
-                L(0, num_sites - 1) += -gamma_1;
-                L(num_sites - 1, 0) += -gamma_1;
+                L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
+                L(num_sites - 1, 0) += -gamma_1 * phase_1;
             }
             if (num_sites > 2) {
-                L(0, num_sites - 2) += -gamma_2;
-                L(num_sites - 2, 0) += -gamma_2;
-                L(1, num_sites - 1) += -gamma_2;
-                L(num_sites - 1, 1) += -gamma_2;
+                L(0, num_sites - 2) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 2, 0) += -gamma_2 * phase_2;
+                L(1, num_sites - 1) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 1, 1) += -gamma_2 * phase_2;
             }
 
             // ##########################################
@@ -252,14 +252,14 @@ RUN_UNIFORM:
 
             // add periodic boundary conditions (it becomes a ring...)
             if (num_sites > 1) {
-                L(0, num_sites - 1) += -gamma_1;
-                L(num_sites - 1, 0) += -gamma_1;
+                L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
+                L(num_sites - 1, 0) += -gamma_1 * phase_1;
             }
             if (num_sites > 2) {
-                L(0, num_sites - 2) += -gamma_2;
-                L(num_sites - 2, 0) += -gamma_2;
-                L(1, num_sites - 1) += -gamma_2;
-                L(num_sites - 1, 1) += -gamma_2;
+                L(0, num_sites - 2) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 2, 0) += -gamma_2 * phase_2;
+                L(1, num_sites - 1) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 1, 1) += -gamma_2 * phase_2;
             }
 
             // ##########################################
@@ -352,14 +352,14 @@ RUN_GAUSSIAN:
 
             // add periodic boundary conditions (it becomes a ring...)
             if (num_sites > 1) {
-                L(0, num_sites - 1) += -gamma_1;
-                L(num_sites - 1, 0) += -gamma_1;
+                L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
+                L(num_sites - 1, 0) += -gamma_1 * phase_1;
             }
             if (num_sites > 2) {
-                L(0, num_sites - 2) += -gamma_2;
-                L(num_sites - 2, 0) += -gamma_2;
-                L(1, num_sites - 1) += -gamma_2;
-                L(num_sites - 1, 1) += -gamma_2;
+                L(0, num_sites - 2) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 2, 0) += -gamma_2 * phase_2;
+                L(1, num_sites - 1) += -gamma_2 * std::conj(phase_2);
+                L(num_sites - 1, 1) += -gamma_2 * phase_2;
             }
 
             // ##########################################
