@@ -1,5 +1,7 @@
 #include "first_detection.hpp"
 #include <string>
+#include <fstream>
+#include <iostream>
 #include <unsupported/Eigen/MatrixFunctions>
 
 // IDEA: mean hitting times shown over a 2D grid 
@@ -8,7 +10,7 @@
 int main() {
 
     // #####################
-    // PARAMETERS
+    // 1) PARAMETERS
     // #####################
     
     // number of sites
@@ -23,7 +25,7 @@ int main() {
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
     double T_max = 180.0; // cutoff time (limited resource)
-    int M = 500; // number of samples of the hitting time
+    int M = 200; // number of samples of the hitting time
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
@@ -35,16 +37,16 @@ int main() {
     Complex phase_2 = std::polar(1.0, phi_2);
 
     // #####################
-    // CONSTRUCT TARGETS
+    // 2) CONSTRUCT TARGETS
     // #####################
 
     // local measurement on m-D subspace (cannot tell on which one the particle is)
-    const std::vector<int> target_sites = {num_sites/2}; 
+    const std::vector<int> target_sites = {num_sites/2+1}; 
     //const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
     MatrixXc multisite_projector = create_subspace_projector(num_sites, target_sites);
 
     // #####################
-    // PRINT PARAMETERS
+    // 3) PRINT PARAMETERS
     // #####################
 
     std::cout << "-----------------------------------\n";
@@ -56,7 +58,7 @@ int main() {
     std::cout << "Multisite Projector:\n" << multisite_projector << "\n"; // print to check...
 
     // #####################
-    // BUILD GRID
+    // 4) BUILD EMPTY GRID
     // #####################
 
     // start constructing the grid by defining the 'checkerboard'...
@@ -70,11 +72,11 @@ int main() {
     // ...and setting all values to zero
     Eigen::MatrixXd mean_hitting_times = Eigen::MatrixXd::Zero(num_tau_points, num_phi_points);
 
-    std::cout << "Parameters initialized! Simulation starting...\n";
+    std::cout << "All parameters initialized! Simulation starting...\n";
     std::cout << "===================================\n";
 
     // #####################
-    // OpenMP parallelization over the outer grid loop for maximum speed
+    // 5) OpenMP parallelization over the outer grid loop for maximum speed
     // #####################
 
     #pragma omp parallel for schedule(dynamic)
@@ -89,13 +91,13 @@ int main() {
         Complex phase_1 = std::polar(1.0, phi_1);
 
         // #####################
-        // Laplacian matrix for a ring (L = D - A)
+        // 5.1) Laplacian matrix for a ring (L = D - A)
         // #####################
 
-        MatrixXc L = build_laplacian(num_sites, on_site_energy, gamma_1, gamma_2, phase_1, phase_2);
+        MatrixXc L = build_Laplacian(num_sites, on_site_energy, gamma_1, gamma_2, phase_1, phase_2);
 
         // #####################
-        // initialisation of the state
+        // 5.2) initialisation of the state
         // #####################
 
         VectorXc psi_0 = VectorXc::Zero(num_sites);
@@ -107,7 +109,7 @@ int main() {
         }
 
         // #####################
-        // DYNAMICS
+        // 5.3) DYNAMICS
         // #####################
         MatrixXc H = gamma * L;
 
@@ -118,7 +120,7 @@ int main() {
             MatrixXc arg = -Complex(0.0, 1.0) * H * tau;
             MatrixXc U_tau = arg.exp(); 
             
-            double total_hitting_time = run_monte_carlo_hitting_times(M, T_max, tau, U_tau, psi_0, multisite_projector, gen, dis);
+            double total_hitting_time = run_Monte_Carlo_hitting_times(M, T_max, tau, U_tau, psi_0, multisite_projector, gen, dis);
 
             mean_hitting_times(t_idx, p_idx) = total_hitting_time; // mean
         }
@@ -131,7 +133,7 @@ int main() {
 
     
     // #####################
-    // finish: 
+    // 6) finish: 
     // #####################
     
     std::cout << "===================================\n";
@@ -139,7 +141,7 @@ int main() {
     std::cout << "===================================\n";
 
     // #####################
-    // filenaming
+    // 6.1) filenaming
     // #####################
 
     // get your ducks in a row: collect targets in a string 
@@ -148,7 +150,7 @@ int main() {
         target_sites_str += std::to_string(target_sites[i]);
         if (i < target_sites.size() - 1) target_sites_str += "_";
     }
-    std::cout << target_sites_str << std::endl;
+    std::cout << "Targets: " << target_sites_str << std::endl;
 
     std::string base_filename = "mean_hitting_time_PVM_gamma2_" + std::to_string(gamma_2) + 
                                 "_N_" + std::to_string(num_sites) + 
@@ -162,7 +164,7 @@ int main() {
     std::string filename_optimal_values = "phi1_vs_tau_" + base_filename + ".txt";
 
     // #####################
-    // saving 2D grid
+    // 6.2) saving 2D grid
     // #####################
 
     // save grid data to file for Python plotting
@@ -176,7 +178,7 @@ int main() {
     grid_file.close();
 
     // #####################
-    // optimization: looking for the min
+    // 6.3) optimization: looking for the min
     // #####################
 
     int min_tau_idx, min_phi_idx;
@@ -197,5 +199,6 @@ int main() {
 
     std::cout << "===================================\n";
     std::cout << "Data exported successfully! Run the Python script to plot.\n";
+
     return 0;
 }

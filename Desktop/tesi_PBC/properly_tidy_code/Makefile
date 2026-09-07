@@ -20,5 +20,8 @@ main.o: main.cpp
 first_detection.o: first_detection.cpp
 	$(CXX) $(CXXFLAGS) -c first_detection.cpp -o first_detection.o
 
+run: $(TARGET)
+	./$(TARGET)
+
 clean:
 	rm -f $(OBJS) $(TARGET)
