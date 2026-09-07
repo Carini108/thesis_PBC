@@ -14,7 +14,7 @@ int main() {
     // #####################
     
     // number of sites
-    int num_sites = 21;
+    int num_sites = 4;
     // grid resolution
     int num_phi_points = 150; // horizontal resolution
     int num_tau_points = 150; // vertical resolution
@@ -29,12 +29,17 @@ int main() {
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
-    double gamma_1 = 1.0;
-    double gamma_2 = 0.0;
-    //phi_1 = 0.0
-    double phi_2 = 0.0;
-    //phase_1 = np.exp(1j * phi_1)
+    double gamma_1 = 0.8;
+    double gamma_2 = 0.15;
+    double PHI_1 = 0.;
+    double phi_2 = 0.;
     Complex phase_2 = std::polar(1.0, phi_2);
+    Complex phase_try = std::polar(1.0, PHI_1);
+
+    MatrixXc L = build_Laplacian(num_sites, on_site_energy, gamma_1, gamma_2, phase_try, phase_2);
+    std::cout << L << std::endl;
+    std::cout << is_hermitian(L) << std::endl;
+    exit(70);
 
     // #####################
     // 2) CONSTRUCT TARGETS

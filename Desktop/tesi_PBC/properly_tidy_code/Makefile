@@ -24,4 +24,7 @@ run: $(TARGET)
 	./$(TARGET)
 
 clean:
+	rm -f $(OBJS)
+
+cleanall:
 	rm -f $(OBJS) $(TARGET)
