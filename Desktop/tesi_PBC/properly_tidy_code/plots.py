@@ -9,14 +9,14 @@ import math
 # PARAMETERS
 #####################
 
-M = 500 # number of runs
+M = 400 # number of runs
 
 # graph's features
-num_sites = 20 # size N of the graph 
+num_sites = 21 # size N of the graph 
 gamma_2 = 0.0
 
 # targets 
-target_site = f'{num_sites // 2+1}' # SINGLE @ opposite end
+target_site = f'{num_sites // 2 + 1}' # SINGLE @ opposite end
 #target_site = f'{num_sites // 2}_{num_sites // 2 + 1}' # DOUBLE @ opposite end
 #target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # TRIPLE @ opposite end
 print(f'Targets: {target_site}')
@@ -26,7 +26,7 @@ print(f'Targets: {target_site}')
 num_phi_points = 150 # horizontal resolution
 num_tau_points = 150 # vertical resolution
 
-#boundaries 
+# boundaries 
 phi_min = -np.pi/num_sites
 phi_max = +np.pi/num_sites
 tau_min = 0.02

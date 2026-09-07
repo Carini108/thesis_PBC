@@ -1,3 +1,0 @@
-Minimum mean hitting time: 21.3076
-Number of Monte Carlo runs per point M: 200
-Optimal parameters: \phi_1 = -0.0753018, \tau = 3.01168

@@ -23,6 +23,9 @@ first_detection.o: first_detection.cpp
 run: $(TARGET)
 	./$(TARGET)
 
+plot:
+	python plots.py
+
 clean:
 	rm -f $(OBJS)
 
