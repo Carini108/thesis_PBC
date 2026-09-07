@@ -9,22 +9,23 @@ import math
 # PARAMETERS
 #####################
 
-M = 400 # number of runs
+M = 600 # number of runs
 
 # graph's features
 num_sites = 21 # size N of the graph 
-gamma_2 = 0.0
+gamma_2 = 0.0 
+phi_2 = 0.0
 
 # targets 
-target_site = f'{num_sites // 2 + 1}' # SINGLE @ opposite end
+target_site = f'{num_sites // 2}' # SINGLE @ opposite end
 #target_site = f'{num_sites // 2}_{num_sites // 2 + 1}' # DOUBLE @ opposite end
 #target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # TRIPLE @ opposite end
 print(f'Targets: {target_site}')
 #relative_phase = 0.0 #for the superposition
 
 # resolution
-num_phi_points = 150 # horizontal resolution
-num_tau_points = 150 # vertical resolution
+num_phi_points = 140 # horizontal resolution
+num_tau_points = 140 # vertical resolution
 
 # boundaries 
 phi_min = -np.pi/num_sites
@@ -36,7 +37,9 @@ tau_max = 4.00
 # LOAD DATA FROM THE C++ SIMULATION
 #####################
 
-mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
+#mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
+#mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
+mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-__resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
 
 #####################
 # MAKE THE FIGURE
@@ -56,7 +59,7 @@ im = plt.imshow(
 
 plt.xlabel(rf'$\phi_1$', fontsize = fonts)
 plt.ylabel(rf'$\tau$', fontsize = fonts)
-plt.title(rf'$N = {num_sites}$, $i={target_site}$, $\gamma_2 = {gamma_2}$', fontsize = fonts)
+plt.title(rf'$N = {num_sites}$, $i= | - \rangle $, $\gamma_2 = {gamma_2}$, $\phi_2$ = {phi_2}', fontsize = fonts)
 
 ticks = [-np.pi/num_sites, -0.5*np.pi/num_sites, 0, 0.5*np.pi/num_sites , np.pi/num_sites]
 tick_labels = [rf'$-\pi/N$', rf'$-\pi/(2N)$', rf'$0$', rf'$+\pi/(2N)$', rf'$+\pi/N$']
@@ -64,6 +67,6 @@ plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)
 cbar.set_label(rf'$\langle n\tau \rangle$', fontsize=fonts)
-filename = rf'CPLUSPLUS_phi1_vs_tau_mean_hitting_time_PVM_gamma2_{gamma_2}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}'
+filename = rf'CPLUSPLUS_phi1_vs_tau_mean_hitting_time_PVM_superposition_-_gamma2_{gamma_2}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}'
 plt.savefig(filename+'.pdf')
 plt.show()

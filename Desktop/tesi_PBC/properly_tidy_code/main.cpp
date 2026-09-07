@@ -19,8 +19,8 @@ int main() {
     // number of sites
     int num_sites = 21;
     // grid resolution
-    int num_phi_points = 150; // horizontal resolution
-    int num_tau_points = 150; // vertical resolution
+    int num_phi_points = 140; // horizontal resolution
+    int num_tau_points = 140; // vertical resolution
     // grid boundaries
     double phi_min = -M_PI / num_sites;
     double phi_max = +M_PI / num_sites;
@@ -28,23 +28,42 @@ int main() {
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
     double T_max = 200.0; // cutoff time (limited resource)
-    int M = 400; // number of samples for the average hitting time
+    int M = 600; // number of samples for the average hitting time
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.; // hopping rate
     double gamma_1 = 1.;
     double gamma_2 = 0.;
     double phi_2 = 0.;
+    // double phi_2 = +M_PI / num_sites;
     Complex phase_2 = std::polar(1.0, phi_2);
 
     // #####################
     // (2) CONSTRUCT TARGETS
     // #####################
 
-    // local measurement on m-dimensional subspace
-    const std::vector<int> target_sites = {num_sites/2+1}; 
+    /*
+    // local measurement on m-dimensional subspace 
+    const std::vector<int> target_sites = {num_sites/2}; 
     // const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
-    MatrixXc multisite_projector = create_subspace_projector(num_sites, target_sites);
+    MatrixXc proj_P = create_subspace_projector(num_sites, target_sites);
+    */
+
+    // equal-amplitude superposition 
+    VectorXc target_state = VectorXc::Zero(num_sites); // becomes chi in the function
+    // double relative_phase = 0.0; // to get the + superpositions
+    double relative_phase = M_PI; // to get the - superpositions
+    Complex exp_rel_phase = std::polar(1.0, relative_phase);
+    target_state(num_sites/2) = 1.0;
+    target_state(num_sites/2 + 1) = 1.0 * exp_rel_phase;
+    double norm = target_state.norm();
+    if (norm > 0) {
+            target_state = target_state / norm;
+        } else {
+            std::cout<<"Unphysical zero-length state!"<<std::endl;
+            std::exit(1);
+        }
+    MatrixXc proj_P = create_state_projector(target_state);
 
     // #####################
     // (3) PRINT PARAMETERS
@@ -57,9 +76,9 @@ int main() {
     std::cout << "Resolution = " << num_phi_points << "x" << num_tau_points << "\n";
     std::cout << "On-site energies (diagonal) = " << on_site_energy << "\n";
     std::cout << "gamma_1 = " << gamma_1 << ", gamma_2 = " << gamma_2 << "\n";
-    std::cout << "phi_1 vaires, phi_2 = " << phi_2 << "\n";
+    std::cout << "phi_1 varies, phi_2 = " << phi_2 << "\n";
     std::cout << "In this code we perform a PVM once every tau!\n";
-    std::cout << "Multisite Projector:\n" << multisite_projector << "\n"; // print to check...
+    std::cout << "Projector:\n" << proj_P << "\n"; // print to check...
     std::cout << "-----------------------------------\n";
 
     // #####################
@@ -128,7 +147,7 @@ int main() {
             MatrixXc U_tau = arg.exp(); 
             
             // average over M Monte Carlo runs
-            double average_hitting_time = run_Monte_Carlo_hitting_times(M, T_max, tau, U_tau, psi_0, multisite_projector, gen, dis); 
+            double average_hitting_time = run_Monte_Carlo_hitting_times(M, T_max, tau, U_tau, psi_0, proj_P, gen, dis); 
             mean_hitting_times(t_idx, p_idx) = average_hitting_time; 
 
         }
@@ -152,16 +171,19 @@ int main() {
     // #####################
 
     // get your ducks in a row: collect targets in a string 
+    /*
     std::string target_sites_str = "";
     for (size_t i = 0; i < target_sites.size(); ++i) {
         target_sites_str += std::to_string(target_sites[i]);
         if (i < target_sites.size() - 1) target_sites_str += "_"; // underscore for spacing
     }
     std::cout << "Targets: " << target_sites_str << std::endl;
+    */
 
     std::string base_filename = "mean_hitting_time_PVM_gamma2_" + std::to_string(gamma_2) + 
+                                "_phi2_" + std::to_string(phi_2) + 
                                 "_N_" + std::to_string(num_sites) + 
-                                "_target_" + target_sites_str + 
+                                "_target_-_" + // target_sites_str + 
                                 "_resolution_" + std::to_string(num_phi_points) + 
                                 "x" + std::to_string(num_tau_points) + 
                                 "_" + std::to_string(M) + "_runs";
