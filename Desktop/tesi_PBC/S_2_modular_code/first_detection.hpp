@@ -50,4 +50,10 @@ double run_Monte_Carlo_hitting_times(int M, double T_max, double tau,
     const MatrixXc& U_tau, const VectorXc& psi_0, const MatrixXc& projector, 
     std::mt19937& gen, std::uniform_real_distribution<double>& dis);
 
+// ####### Calculate || O^n |\psi_0> ||^2 with MAX time T_max as a fixed resource
+double get_Surv_Prob_fixed_Tmax(double T_max, double tau, const MatrixXc& U_tau, const VectorXc& psi_0, const MatrixXc& proj_P);
+
+// ####### Calculate || O^n |\psi_0> ||^2 with number of measurements n as a fixed resource
+double get_Surv_Prob_fixed_nMeasurements(int n, double tau, const MatrixXc& U_tau, const VectorXc& psi_0, const MatrixXc& proj_P);
+
 #endif // FIRST_DETECTION_HPP

@@ -9,7 +9,9 @@ import math
 # PARAMETERS
 #####################
 
-M = 10 # number of runs
+# LIMITED RESOURCE
+# T_max = 540.0; # cutoff time (limited resource)
+n_Meas = 150; # measurements available (limited resource)
 
 # graph's features
 num_sites = 21 # size N of the graph 
@@ -21,7 +23,6 @@ target_site = f'{num_sites // 2}' # SINGLE @ opposite end
 #target_site = f'{num_sites // 2}_{num_sites // 2 + 1}' # DOUBLE @ opposite end
 #target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # TRIPLE @ opposite end
 print(f'Targets: {target_site}')
-#relative_phase = 0.0 #for the superposition
 
 # resolution
 num_phi_points = 140 # horizontal resolution
@@ -37,7 +38,8 @@ tau_max = 4.00
 # LOAD DATA FROM THE C++ SIMULATION
 #####################
 
-filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-_resolution_{num_phi_points}x{num_tau_points}_{M}_runs'
+# filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-_resolution_{num_phi_points}x{num_tau_points}_Tmax_{T_max:.6f}'
+filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-_resolution_{num_phi_points}x{num_tau_points}_{n_Meas}_measurements'
 survival_probabilities = np.loadtxt('RESULTS_'+filename_base+'.txt')
 
 #####################
@@ -65,7 +67,7 @@ tick_labels = [rf'$-\pi/N$', rf'$-\pi/(2N)$', rf'$0$', rf'$+\pi/(2N)$', rf'$+\pi
 plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)
-cbar.set_label(rf'$\langle n\tau \rangle$', fontsize=fonts)
+cbar.set_label(rf'$S(n)$', fontsize=fonts)
 PDFfilename = 'CPP_phi1_VS_tau_'+filename_base
 plt.savefig(PDFfilename+'.pdf')
 plt.show()

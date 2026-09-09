@@ -178,3 +178,29 @@ double run_Monte_Carlo_hitting_times(int M, double T_max, double tau,
 
     return total_hitting_time / static_cast<double>(M); // average < n > * \tau
 }
+
+// ####### Calculate || O^n |\psi_0> ||^2 with MAX time T_max as a fixed resource
+double get_Surv_Prob_fixed_Tmax(double T_max, double tau, const MatrixXc& U_tau, const VectorXc& psi_0, const MatrixXc& proj_P){
+
+    double time = 0.;
+    VectorXc psi_step = psi_0;
+
+    while(time < T_max) {
+        psi_step = proj_P * U_tau * psi_step;
+        time += tau;
+    }
+
+    return psi_step.squaredNorm();
+}
+
+// ####### Calculate || O^n |\psi_0> ||^2 with number of measurements n as a fixed resource
+double get_Surv_Prob_fixed_nMeasurements(int n, double tau, const MatrixXc& U_tau, const VectorXc& psi_0, const MatrixXc& proj_P){
+
+    VectorXc psi_step = psi_0;
+    
+    for (int step=0; step < n; step++) {
+        psi_step = proj_P * U_tau * psi_step;
+    }
+
+    return psi_step.squaredNorm();
+}

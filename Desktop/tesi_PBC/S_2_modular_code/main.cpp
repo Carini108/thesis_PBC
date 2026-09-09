@@ -27,8 +27,8 @@ int main() {
     double tau_min = 0.02;
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
-    double T_max = 200.0; // cutoff time (limited resource)
-    int M = 10; // number of samples for the average hitting time
+    //double T_max = 540.0; // cutoff time (limited resource)
+    int n_Meas = 150; // measurements available (limited resource)
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.; // hopping rate
@@ -40,6 +40,10 @@ int main() {
 
     // #####################
     // (2) CONSTRUCT TARGETS
+    // #####################
+
+    // #####################
+    // (2.1) DEFINITION of the subspaces for the projection
     // #####################
 
     /*
@@ -63,7 +67,15 @@ int main() {
             std::cout<<"Unphysical zero-length state!"<<std::endl;
             std::exit(1);
         }
+    
+    // #####################
+    // (2.2) INITIALISATION of the state and of the projectors
+    // #####################
+
+    VectorXc psi_0 = VectorXc::Zero(num_sites);
+    psi_0(0) = 1.0; // start at node 0
     MatrixXc proj_P = create_state_projector(target_state);
+    MatrixXc complementary_proj = MatrixXc::Identity(psi_0.size(), psi_0.size()) - proj_P; // I - P
 
     // #####################
     // (3) PRINT PARAMETERS
@@ -71,13 +83,13 @@ int main() {
 
     std::cout << "-----------------------------------\n";
     std::cout << "Number of sites N = " << num_sites << "\n";
-    std::cout << "Maximum evolution time T = " << T_max << "\n";
-    std::cout << "Monte Carlo runs per grid point M = " << M << "\n";
+    // std::cout << "Maximum evolution time T = " << T_max << "\n";
+    std::cout << "Maximum number of measurements n = " << n_Meas << "\n";
     std::cout << "Resolution = " << num_phi_points << "x" << num_tau_points << "\n";
     std::cout << "On-site energies (diagonal) = " << on_site_energy << "\n";
     std::cout << "gamma_1 = " << gamma_1 << ", gamma_2 = " << gamma_2 << "\n";
     std::cout << "phi_1 varies, phi_2 = " << phi_2 << "\n";
-    std::cout << "In this code we perform a PVM once every tau!\n";
+    std::cout << "In this code we DO NOT simulate a PVM once every tau! This is a deterministic calculation of survival probabilites. There is no averaging going on.\n";
     std::cout << "Projector:\n" << proj_P << "\n"; // print to check...
     std::cout << "-----------------------------------\n";
 
@@ -94,9 +106,9 @@ int main() {
         tau_values[i] = tau_min + i * (tau_max - tau_min) / (num_tau_points - 1);
 
     // ...and setting all values to zero
-    Eigen::MatrixXd mean_hitting_times = Eigen::MatrixXd::Zero(num_tau_points, num_phi_points);
+    Eigen::MatrixXd Survival_Probs = Eigen::MatrixXd::Zero(num_tau_points, num_phi_points);
 
-    std::cout << "All parameters initialized! Simulation starting...\n";
+    std::cout << "All parameters initialized! Calculation starting...\n";
     std::cout << "===================================\n";
 
     // #####################
@@ -120,20 +132,13 @@ int main() {
 
         MatrixXc L = build_Laplacian(num_sites, on_site_energy, gamma_1, gamma_2, phase_1, phase_2);
 
-        // #####################
-        // (5.2) INITIALISATION of the state
-        // #####################
-
-        VectorXc psi_0 = VectorXc::Zero(num_sites);
-        psi_0(0) = 1.0; // start at node 0
-
         #pragma omp critical
         {
             std::cout << "State at time = 0 initialized! phi_1 = " << phi_1 << "\n";
         }
 
         // #####################
-        // (5.3) DYNAMICS
+        // (5.2) DYNAMICS
         // #####################
         MatrixXc H = gamma * L;
 
@@ -146,9 +151,10 @@ int main() {
             MatrixXc arg = -Complex(0.0, 1.0) * H * tau;
             MatrixXc U_tau = arg.exp(); 
             
-            // average over M Monte Carlo runs
-            double average_hitting_time = run_Monte_Carlo_hitting_times(M, T_max, tau, U_tau, psi_0, proj_P, gen, dis); 
-            mean_hitting_times(t_idx, p_idx) = average_hitting_time; 
+            // NO average! This is just || O^n |\psi_0> ||^2 
+            // double survival_probability = get_Surv_Prob_fixed_Tmax(T_max, tau, U_tau, psi_0, complementary_proj);
+            double survival_probability = get_Surv_Prob_fixed_nMeasurements(n_Meas, tau, U_tau, psi_0, complementary_proj);
+            Survival_Probs(t_idx, p_idx) = survival_probability; 
 
         }
 
@@ -163,7 +169,7 @@ int main() {
     // #####################
     
     std::cout << "===================================\n";
-    std::cout << "All simulations completed!\n";
+    std::cout << "All calculations completed!\n";
     std::cout << "===================================\n";
 
     // #####################
@@ -186,7 +192,8 @@ int main() {
                                 "_target_-" + // target_sites_str + 
                                 "_resolution_" + std::to_string(num_phi_points) + 
                                 "x" + std::to_string(num_tau_points) + 
-                                "_" + std::to_string(M) + "_runs";
+                                //"_Tmax_" + std::to_string(T_max);
+                                "_" + std::to_string(n_Meas) + "_measurements";
 
     // branch filenaming 
     std::string filename_results = "RESULTS_" + base_filename + ".txt";
@@ -200,7 +207,7 @@ int main() {
     std::ofstream grid_file(filename_results);
     for (int i = 0; i < num_tau_points; ++i) {
         for (int j = 0; j < num_phi_points; ++j) {
-            grid_file << mean_hitting_times(i, j) << (j == num_phi_points - 1 ? "" : " "); // separate data at the end of the line
+            grid_file << Survival_Probs(i, j) << (j == num_phi_points - 1 ? "" : " "); // separate data at the end of the line
         }
         grid_file << "\n";
     }
@@ -211,7 +218,7 @@ int main() {
     // #####################
 
     int min_tau_idx, min_phi_idx;
-    double min_time = mean_hitting_times.minCoeff(&min_tau_idx, &min_phi_idx);
+    double max_prob = Survival_Probs.maxCoeff(&min_tau_idx, &min_phi_idx);
 
     double optimal_tau_val = tau_values[min_tau_idx];
     double optimal_phi_val = phi_values[min_phi_idx];
@@ -221,8 +228,7 @@ int main() {
     // #####################
 
     std::ofstream f(filename_optimal_values);
-    f << "Minimum mean hitting time: " << min_time << "\n";
-    f << "Number of Monte Carlo runs per point M: " << M << "\n";
+    f << "Maximum survival probability: " << max_prob << "\n";
     f << "Optimal parameters: \\phi_1 = " << optimal_phi_val << ", \\tau = " << optimal_tau_val << "\n";
     f.close();
 
