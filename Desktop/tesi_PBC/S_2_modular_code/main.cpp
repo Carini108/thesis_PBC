@@ -19,16 +19,16 @@ int main() {
     // number of sites
     int num_sites = 21;
     // grid resolution
-    int num_phi_points = 140; // horizontal resolution
-    int num_tau_points = 140; // vertical resolution
+    int num_phi_points = 800; // horizontal resolution
+    int num_tau_points = 800; // vertical resolution
     // grid boundaries
     double phi_min = -M_PI / num_sites;
     double phi_max = +M_PI / num_sites;
     double tau_min = 0.02;
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
-    //double T_max = 540.0; // cutoff time (limited resource)
-    int n_Meas = 150; // measurements available (limited resource)
+    double T_max = 540.0; // cutoff time (limited resource)
+    //int n_Meas = 150; // measurements available (limited resource)
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.; // hopping rate
@@ -55,8 +55,8 @@ int main() {
 
     // equal-amplitude superposition 
     VectorXc target_state = VectorXc::Zero(num_sites); // becomes chi in the function
-    // double relative_phase = 0.0; // to get the + superpositions
-    double relative_phase = M_PI; // to get the - superpositions
+    double relative_phase = 0.0; // to get the + superpositions
+    // double relative_phase = M_PI; // to get the - superpositions
     Complex exp_rel_phase = std::polar(1.0, relative_phase);
     target_state(num_sites/2) = 1.0;
     target_state(num_sites/2 + 1) = 1.0 * exp_rel_phase;
@@ -83,8 +83,8 @@ int main() {
 
     std::cout << "-----------------------------------\n";
     std::cout << "Number of sites N = " << num_sites << "\n";
-    // std::cout << "Maximum evolution time T = " << T_max << "\n";
-    std::cout << "Maximum number of measurements n = " << n_Meas << "\n";
+    std::cout << "Maximum evolution time T = " << T_max << "\n";
+    //std::cout << "Maximum number of measurements n = " << n_Meas << "\n";
     std::cout << "Resolution = " << num_phi_points << "x" << num_tau_points << "\n";
     std::cout << "On-site energies (diagonal) = " << on_site_energy << "\n";
     std::cout << "gamma_1 = " << gamma_1 << ", gamma_2 = " << gamma_2 << "\n";
@@ -152,8 +152,8 @@ int main() {
             MatrixXc U_tau = arg.exp(); 
             
             // NO average! This is just || O^n |\psi_0> ||^2 
-            // double survival_probability = get_Surv_Prob_fixed_Tmax(T_max, tau, U_tau, psi_0, complementary_proj);
-            double survival_probability = get_Surv_Prob_fixed_nMeasurements(n_Meas, tau, U_tau, psi_0, complementary_proj);
+            double survival_probability = get_Surv_Prob_fixed_Tmax(T_max, tau, U_tau, psi_0, complementary_proj);
+            // double survival_probability = get_Surv_Prob_fixed_nMeasurements(n_Meas, tau, U_tau, psi_0, complementary_proj);
             Survival_Probs(t_idx, p_idx) = survival_probability; 
 
         }
@@ -189,11 +189,11 @@ int main() {
     std::string base_filename = "SurvProb_gamma2_" + std::to_string(gamma_2) + 
                                 "_phi2_" + std::to_string(phi_2) + 
                                 "_N_" + std::to_string(num_sites) + 
-                                "_target_-" + // target_sites_str + 
+                                "_target_+" + // target_sites_str + 
                                 "_resolution_" + std::to_string(num_phi_points) + 
                                 "x" + std::to_string(num_tau_points) + 
-                                //"_Tmax_" + std::to_string(T_max);
-                                "_" + std::to_string(n_Meas) + "_measurements";
+                                "_Tmax_" + std::to_string(T_max);
+                                //"_" + std::to_string(n_Meas) + "_measurements";
 
     // branch filenaming 
     std::string filename_results = "RESULTS_" + base_filename + ".txt";

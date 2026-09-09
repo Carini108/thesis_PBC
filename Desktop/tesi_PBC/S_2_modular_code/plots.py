@@ -10,8 +10,8 @@ import math
 #####################
 
 # LIMITED RESOURCE
-# T_max = 540.0; # cutoff time (limited resource)
-n_Meas = 150; # measurements available (limited resource)
+T_max = 540.0; # cutoff time (limited resource)
+# n_Meas = 150; # measurements available (limited resource)
 
 # graph's features
 num_sites = 21 # size N of the graph 
@@ -25,8 +25,8 @@ target_site = f'{num_sites // 2}' # SINGLE @ opposite end
 print(f'Targets: {target_site}')
 
 # resolution
-num_phi_points = 140 # horizontal resolution
-num_tau_points = 140 # vertical resolution
+num_phi_points = 800 # horizontal resolution
+num_tau_points = 800 # vertical resolution
 
 # boundaries 
 phi_min = -np.pi/num_sites
@@ -38,8 +38,8 @@ tau_max = 4.00
 # LOAD DATA FROM THE C++ SIMULATION
 #####################
 
-# filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-_resolution_{num_phi_points}x{num_tau_points}_Tmax_{T_max:.6f}'
-filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_-_resolution_{num_phi_points}x{num_tau_points}_{n_Meas}_measurements'
+filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_+_resolution_{num_phi_points}x{num_tau_points}_Tmax_{T_max:.6f}'
+# filename_base = f'SurvProb_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_+_resolution_{num_phi_points}x{num_tau_points}_{n_Meas}_measurements'
 survival_probabilities = np.loadtxt('RESULTS_'+filename_base+'.txt')
 
 #####################
@@ -60,7 +60,7 @@ im = plt.imshow(
 
 plt.xlabel(rf'$\phi_1$', fontsize = fonts)
 plt.ylabel(rf'$\tau$', fontsize = fonts)
-plt.title(rf'$N = {num_sites}$, $i= | - \rangle $, $\gamma_2 = {gamma_2}$, $\phi_2$ = {phi_2}', fontsize = fonts)
+plt.title(rf'$N = {num_sites}$, $i= | + \rangle $, $\gamma_2 = {gamma_2}$, $\phi_2$ = {phi_2}', fontsize = fonts)
 
 ticks = [-np.pi/num_sites, -0.5*np.pi/num_sites, 0, 0.5*np.pi/num_sites , np.pi/num_sites]
 tick_labels = [rf'$-\pi/N$', rf'$-\pi/(2N)$', rf'$0$', rf'$+\pi/(2N)$', rf'$+\pi/N$']

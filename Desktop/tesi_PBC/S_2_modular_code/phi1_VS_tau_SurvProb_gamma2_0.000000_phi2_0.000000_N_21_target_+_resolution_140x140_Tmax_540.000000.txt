@@ -1,0 +1,2 @@
+Maximum survival probability: 0.989452
+Optimal parameters: \phi_1 = 0.1496, \tau = 3.39871
