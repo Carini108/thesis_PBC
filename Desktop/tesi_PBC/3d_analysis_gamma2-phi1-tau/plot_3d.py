@@ -65,7 +65,7 @@ im = ax.imshow(
 cbar = fig.colorbar(im, ax=ax)
 cbar.set_label(rf'mean detection time $<t_f>$', rotation=270, labelpad=15)
 
-ax.set_title(f"$\gamma_2 = {gamma2_vals[initial_g_idx]:.3f}$")
+ax.set_title(rf"$\gamma_2 = {gamma2_vals[initial_g_idx]:.3f}$")
 ax.set_xlabel(rf"$\phi_1$")
 ax.set_ylabel(rf"$\tau$")
 
