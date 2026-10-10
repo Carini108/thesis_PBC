@@ -17,10 +17,10 @@ int main() {
     // #####################
     
     // number of sites
-    int num_sites = 21;
+    int num_sites = 10;
     // grid resolution
-    int num_phi_points = 140; // horizontal resolution
-    int num_tau_points = 140; // vertical resolution
+    int num_phi_points = 200; // horizontal resolution
+    int num_tau_points = 200; // vertical resolution
     // grid boundaries
     double phi_min = -M_PI / num_sites;
     double phi_max = +M_PI / num_sites;
@@ -28,7 +28,7 @@ int main() {
     double tau_max = 4.00;
     // time evolution parameters and number of MC runs
     double T_max = 200.0; // cutoff time (limited resource)
-    int M = 600; // number of samples for the average hitting time
+    int M = 2500; // number of samples for the average hitting time
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
     double gamma = 1.; // hopping rate

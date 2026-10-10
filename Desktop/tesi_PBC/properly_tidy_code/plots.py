@@ -9,7 +9,7 @@ import math
 # PARAMETERS
 #####################
 
-M = 600 # number of runs
+M = 2500 # number of runs
 
 # graph's features
 num_sites = 21 # size N of the graph 

@@ -12,6 +12,7 @@
 using Complex = std::complex<double>;
 using MatrixXc = Eigen::Matrix<Complex, Eigen::Dynamic, Eigen::Dynamic>;
 using VectorXc = Eigen::Matrix<Complex, Eigen::Dynamic, 1>;
+using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 
 enum class SmearingType { NONE, UNIFORM, GAUSSIAN };
 
@@ -26,7 +27,6 @@ void on_site_PVM(VectorXc& state, int target_site, bool& detection_successful,
     detection_successful = false;
 
     if (dis(gen) >= prob_success) {
-        // print(rf"Walker is NOT at site {target_site}.")
         // projecting on the complementary subspace
         collapsed_state = state;
         collapsed_state(target_site) = 0.0;
@@ -61,21 +61,22 @@ int main() {
     // ##########################################
 
     // SMEARING parameters
-    SmearingType smearing_mode = SmearingType::UNIFORM; // Choose: NONE, UNIFORM, or GAUSSIAN
-    double smearing_error = 0.25; // Absolute error (half-width for uniform, standard deviation for gaussian)
+    SmearingType smearing_mode = SmearingType::GAUSSIAN; // Choose: NONE, UNIFORM, or GAUSSIAN
+    double smearing_error = 0.0; // Absolute error (half-width for uniform, standard deviation for gaussian)
 
     // test different phis and taus (2D GRID) for fixed size N
-    int num_sites = 20;
+    int num_sites = 12;
     int target_site = num_sites / 2; // opposite end
-    int num_phi_points = 170; // horizontal resolution
-    int num_tau_points = 170; // vertical resolution
+    int num_phi_points = 150; // horizontal resolution
+    int num_tau_points = 50 * num_sites; // vertical resolution
     double phi_min = -M_PI / num_sites;
     double phi_max = +M_PI / num_sites;
-    double tau_min = 0.60;
-    double tau_max = 3.20;
+    double tau_min = 0.50;
+    double tau_max = static_cast<int>(1.1*num_sites);
     // time evolution parameters and number of MC runs
-    double T_max = 200.0; // cutoff time (limited resource)
-    int M = 2000; // number of samples of the hitting time
+    double T_max = 230.0; // cutoff time (limited resource)
+    int M = 500; // number of samples of the hitting time
+    double phi_error = 0.10*(phi_max-phi_min);
 
     std::cout << "-----------------------------------\n";
     std::cout << "We assume tau is NOISY! (experimental fluctuations...)\n";
@@ -92,9 +93,7 @@ int main() {
     double gamma = 1.0; // hopping rate
     double gamma_1 = 1.0;
     double gamma_2 = 0.0;
-    //phi_1 = 0.0
     double phi_2 = 0.0;
-    //phase_1 = np.exp(1j * phi_1)
     Complex phase_2 = std::polar(1.0, phi_2);
 
     // start constructing the grid by defining the 'checkerboard'...
@@ -318,99 +317,71 @@ RUN_UNIFORM:
 
 RUN_GAUSSIAN:
     {
-        std::cout << "assuming GAUSSIAN noise  ("<< smearing_error << ")\n";
-        // OpenMP parallelization over the outer grid loop for maximum speed
+        std::cout << "Assuming GAUSSIAN noise (Phi error = " << phi_error 
+                  << ", Tau relative error = 10%)\n";
+
         #pragma omp parallel for schedule(dynamic)
-        for (int p_idx = 0; p_idx < num_phi_points; ++p_idx) { // the first variable is the index, the second the value
-            
-            // for reproducibility (thread-safe seeding)
+        for (int p_idx = 0; p_idx < num_phi_points; ++p_idx) {
+
+            double base_phi_1 = phi_values[p_idx];
             std::mt19937 gen(13 + p_idx); 
             std::uniform_real_distribution<double> dis(0.0, 1.0);
-            std::normal_distribution<double> gaussian_smear(0.0, smearing_error);
-
-            double phi_1 = phi_values[p_idx];
-            Complex phase_1 = std::polar(1.0, phi_1);
-
-            // ##########################################
-            // 2. Laplacian matrix for a ring (L = D - A)
-            // ##########################################
-
-            MatrixXc L = MatrixXc::Zero(num_sites, num_sites);
-
-            // on-site energies & first/second neighbor hoppings
-            for (int i = 0; i < num_sites; ++i) {
-                L(i, i) = 2.0 * on_site_energy;
-                if (i < num_sites - 1) {
-                    L(i, i + 1) += -gamma_1 * phase_1;
-                    L(i + 1, i) += -gamma_1 * std::conj(phase_1);
-                }
-                if (i < num_sites - 2) {
-                    L(i, i + 2) += -gamma_2 * phase_2;
-                    L(i + 2, i) += -gamma_2 * std::conj(phase_2);
-                }
-            }
-
-            // add periodic boundary conditions (it becomes a ring...)
-            if (num_sites > 1) {
-                L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
-                L(num_sites - 1, 0) += -gamma_1 * phase_1;
-            }
-            if (num_sites > 2) {
-                L(0, num_sites - 2) += -gamma_2 * std::conj(phase_2);
-                L(num_sites - 2, 0) += -gamma_2 * phase_2;
-                L(1, num_sites - 1) += -gamma_2 * std::conj(phase_2);
-                L(num_sites - 1, 1) += -gamma_2 * phase_2;
-            }
-
-            // ##########################################
-            // 3. initialization of the state
-            // ##########################################
+            std::normal_distribution<double> gaussian_smear_phi(0.0, phi_error); 
 
             VectorXc psi_0 = VectorXc::Zero(num_sites);
-            psi_0(0) = 1.0; // start at node 0
-
-            #pragma omp critical
-            {
-                std::cout << "State at time = 0 initialized! phi_1 = " << phi_1 << "\n";
-            }
-
-            // ##########################################
-            // 4. time evolution (time-indep. H) without PVM
-            // ##########################################
-
-            MatrixXc H = gamma * L;
+            psi_0(0) = 1.0;
 
             for (int t_idx = 0; t_idx < num_tau_points; ++t_idx) {
-                double tau = tau_values[t_idx];
+                double base_tau = tau_values[t_idx];
                 double total_hitting_time = 0.0;
+                std::normal_distribution<double> gaussian_smear_tau(0.0, base_tau * 0.1);
 
-                // MC loop to get an average estimate of the time it takes to first measure
                 for (int run = 0; run < M; ++run) {
                     VectorXc psi_step = psi_0;
                     double time = 0.0;
                     bool detected = false;
 
                     while (!detected && time < T_max) {
-                        double tau_actual = tau + gaussian_smear(gen);
-                        if (tau_actual < 0.0) tau_actual = 0.0; // safeguard to keep time progressing forward
+                        // Reconstruct Laplacian L with noisy phi
+                        MatrixXc L = MatrixXc::Zero(num_sites, num_sites);
+                        double phi_1 = base_phi_1 + gaussian_smear_phi(gen);
+                        Complex phase_1 = std::polar(1.0, phi_1);
 
-                        MatrixXc arg = -Complex(0.0, 1.0) * H * tau_actual;
-                        MatrixXc U_tau_step = arg.exp();
+                        for (int i = 0; i < num_sites - 1; ++i) {
+                            L(i, i + 1) += -gamma_1 * phase_1;
+                            L(i + 1, i) += -gamma_1 * std::conj(phase_1);
+                        }
+                        // Periodic boundary conditions
+                        L(0, num_sites - 1) += -gamma_1 * std::conj(phase_1);
+                        L(num_sites - 1, 0) += -gamma_1 * phase_1;
 
-                        psi_step = U_tau_step * psi_step; // whole tau long unitary step
+                        MatrixXc H = gamma * L;
+
+                        // Fast unitary evolution via Eigendecomposition
+                        Eigen::SelfAdjointEigenSolver<MatrixXc> solver(H);
+                        VectorXd evals = solver.eigenvalues();
+                        MatrixXc evecs = solver.eigenvectors();
+
+                        double tau_actual = std::max(0.0, base_tau + gaussian_smear_tau(gen));
+                        
+                        // Compute diag(exp(-i * lambda * tau))
+                        VectorXc exp_evals(num_sites);
+                        for (int k = 0; k < num_sites; ++k) {
+                            exp_evals(k) = std::exp(-Complex(0.0, 1.0) * evals(k) * tau_actual);
+                        }
+
+                        // U(tau) * psi_step = V * diag(exp_evals) * V^\dagger * psi_step
+                        VectorXc temp = evecs.adjoint() * psi_step;
+                        psi_step = evecs * exp_evals.cwiseProduct(temp);
+
                         time += tau_actual;
-                        on_site_PVM(psi_step, target_site, detected, gen, dis); // attempt to measure
+                        on_site_PVM(psi_step, target_site, detected, gen, dis);
                     }
 
                     total_hitting_time += time;
                 }
 
-                mean_hitting_times(t_idx, p_idx) = total_hitting_time / M; // mean
-            }
-
-            #pragma omp critical
-            {
-                std::cout << "phi_1 step number " << p_idx + 1 << "/" << num_phi_points << "\n";
+                mean_hitting_times(t_idx, p_idx) = total_hitting_time / M;
             }
         }
         goto FINISH;
@@ -431,7 +402,7 @@ FINISH:
         case SmearingType::GAUSSIAN: smearing_str = "GAUSSIAN"; break;
     }
 
-    std::string filename_results = "RESULTS_SMEARING_" + smearing_str +  "_" + std::to_string(smearing_error) + "_mean_hitting_time_PVM_gamma2_" + 
+    std::string filename_results = "RESULTS_SMEARING_" + smearing_str +  "_10percentPHI" + std::to_string(phi_error) + "_mean_hitting_time_PVM_gamma2_" + 
                            std::to_string(gamma_2) + "_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
                            std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points) + "_" +
@@ -457,7 +428,8 @@ FINISH:
     double optimal_tau_val = tau_values[min_tau_idx];
     double optimal_phi_val = phi_values[min_phi_idx];
 
-    std::string filename = "SMEARING_" + smearing_str + "_" + std::to_string(smearing_error) + "_phi1_vs_tau_mean_hitting_time_PVM_gamma2_" + 
+    std::string filename = "SMEARING_" + smearing_str + "_10percentPHI_" + std::to_string(phi_error) 
+                            + "_phi1_vs_tau_mean_hitting_time_PVM_gamma2_" + 
                            std::to_string(static_cast<int>(gamma_2)) + ".0_N_" + 
                            std::to_string(num_sites) + "_resolution_" + 
                            std::to_string(num_phi_points) + "x" + std::to_string(num_tau_points) + "_" +
