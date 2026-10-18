@@ -1,0 +1,3 @@
+Minimum mean hitting time: 0.862252
+Number of Monte Carlo runs per point M: 800
+Optimal parameters: \tau = 0.0128543, \gamma_dec = 100

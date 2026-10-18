@@ -1,0 +1,1 @@
+Con gamma_decoerenza = 0, i risultati sono riprodotti perfettamente rispetto alle evoluzioni non incoerenti fatte sulla matrice densità con U e U^daga o sugli stati con una unitaria
