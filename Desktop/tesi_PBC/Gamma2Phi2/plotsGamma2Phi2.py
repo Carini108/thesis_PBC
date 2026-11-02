@@ -10,7 +10,7 @@ import math
 #####################
 
 # LIMITED RESOURCE
-T_max = 250.0; # cutoff time (limited resource)
+T_max = 200.0; # cutoff time (limited resource)
 # n_Meas = 150; # measurements available (limited resource)
 
 # graph's features 
@@ -31,7 +31,7 @@ num_gamma2_points = 400 # vertical resolution
 
 # boundaries 
 phi_2_min = -np.pi
-phi_2_max = +np.pi*2.
+phi_2_max = +np.pi
 gamma_2_min = 0.0
 gamma_2_max = 1.0
 
@@ -63,8 +63,8 @@ plt.xlabel(rf'$\phi_2$', fontsize = fonts)
 plt.ylabel(rf'$\gamma_2$', fontsize = fonts)
 plt.title(rf'$N = {num_sites}$, $i= | + \rangle $, $\tau = {tau}$, $\phi_1$ = {phi_1}', fontsize = fonts)
 
-ticks = [-np.pi, -0.5*np.pi, 0, 0.5*np.pi , np.pi, 2* np.pi]
-tick_labels = [rf'$-\pi$', rf'$-\pi/2$', rf'$0$', rf'$+\pi/2$', rf'$+\pi$', rf'$+2\pi$']
+ticks = [-np.pi, -0.5*np.pi, 0, 0.5*np.pi , np.pi]
+tick_labels = [rf'$-\pi$', rf'$-\pi/2$', rf'$0$', rf'$+\pi/2$', rf'$+\pi$']
 plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)

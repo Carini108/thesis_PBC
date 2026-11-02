@@ -85,7 +85,9 @@ int main() {
     double on_site_energy = 0.0;
     double gamma = 1.0; // hopping rate
     double gamma_1 = 1.0;
-    double phi_1 = 0.5*M_PI/num_sites;
+    double phi_1 = 0;
+    //double phi_1 = 0.5*M_PI/num_sites;
+    //double phi_1 = M_PI/num_sites;
     double phi_2 = 0.0;
     Complex phase_1 = std::polar(1.0, phi_1);
     Complex phase_2 = std::polar(1.0, phi_2);

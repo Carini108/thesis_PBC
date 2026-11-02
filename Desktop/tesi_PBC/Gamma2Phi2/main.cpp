@@ -17,13 +17,13 @@ int main() {
     // #####################
     
     // number of sites
-    int num_sites = 21;
+    int num_sites = 20;
     // grid resolution
     int num_phi2_points = 400; // horizontal resolution
     int num_gamma2_points = 400; // vertical resolution
     // grid boundaries
     double phi2_min = -M_PI;
-    double phi2_max = +2.*M_PI;
+    double phi2_max = +M_PI;
     double gamma2_min = 0.0;
     double gamma2_max = 1.0; 
     
@@ -33,7 +33,7 @@ int main() {
     Complex phase_1 = std::polar(1.0, phi_1);
 
     // time evolution parameters
-    double T_max = 250.0; // cutoff time (limited resource)
+    double T_max = 200.0; // cutoff time (limited resource)
     //int n_Meas = 150; // measurements available (limited resource)
     // couplings and constants relevant to H
     double on_site_energy = 0.0;
@@ -61,7 +61,7 @@ int main() {
     // double relative_phase = M_PI; // to get the - superpositions
     Complex exp_rel_phase = std::polar(1.0, relative_phase);
     target_state(num_sites/2) = 1.0;
-    target_state(num_sites/2 + 1) = 1.0 * exp_rel_phase;
+    // target_state(num_sites/2 + 1) = 1.0 * exp_rel_phase;
     double norm = target_state.norm();
     if (norm > 0) {
             target_state = target_state / norm;
@@ -191,7 +191,7 @@ int main() {
     std::string base_filename = "SurvProb_tau_" + std::to_string(tau) + 
                                 "_phi1_" + std::to_string(phi_1) + 
                                 "_N_" + std::to_string(num_sites) + 
-                                "_target_+" + // target_sites_str + 
+                                "_target_10" + // target_sites_str + 
                                 "_resolution_" + std::to_string(num_phi2_points) + 
                                 "x" + std::to_string(num_gamma2_points) + 
                                 "_Tmax_" + std::to_string(T_max);

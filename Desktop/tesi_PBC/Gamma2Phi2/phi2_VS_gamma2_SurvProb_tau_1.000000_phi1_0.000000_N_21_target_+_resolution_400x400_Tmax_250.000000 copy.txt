@@ -1,0 +1,2 @@
+Maximum survival probability: 0.484698
+Optimal parameters: \phi_2 = -2.62193, \gamma_2 = 0.41604

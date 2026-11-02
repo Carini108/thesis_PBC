@@ -22,19 +22,19 @@ int main() {
         // number of sites
         int num_sites = varying_size;
         // grid resolution
-        int num_tau_points = 100; // horizontal resolution
-        int num_gammadec_points = 100; // vertical resolution
+        int num_tau_points = 80; // horizontal resolution
+        int num_gammadec_points = 80; // vertical resolution
         // grid boundaries
         double tau_min = 0.01;
         double tau_max = 5.0;
-        double gammadec_min = 1e-4;
-        double gammadec_max = 100.0;
+        double gammadec_min = 1e-3;
+        double gammadec_max = 10.0;
         // fixed phi_1 parameter
         double phi_1 = 0.0;
         Complex phase_1 = std::polar(1.0, phi_1);
         // time evolution parameters and number of MC runs
         double T_max = 200.0; // cutoff time (limited resource)
-        int M = 800; // number of samples for the average hitting time
+        int M = 2500; // number of samples for the average hitting time
         // couplings and constants relevant to H
         double on_site_energy = 0.0;
         double gamma = 1.; // hopping rate

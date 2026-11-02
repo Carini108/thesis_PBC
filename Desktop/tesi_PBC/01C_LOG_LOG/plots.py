@@ -9,7 +9,7 @@ import math
 # PARAMETERS
 #####################
 
-M = 800 # number of runs
+M = 2500 # number of runs
 T_max = 200.0
 
 # graph's features
@@ -26,14 +26,14 @@ print(f'Targets: {target_site}')
 #relative_phase = 0.0 #for the superposition
 
 # resolution
-num_tau_points = 100 # horizontal resolution
-num_gammadec_points = 100 # vertical resolution
+num_tau_points = 80 # horizontal resolution
+num_gammadec_points = 80 # vertical resolution
 
 # boundaries 
-tau_min = 0.001
+tau_min = 0.01
 tau_max = 5.0
-gammadec_min = 1e-4
-gammadec_max = 100.0
+gammadec_min = 1e-3
+gammadec_max = 10.0
 
 #####################
 # LOAD DATA FROM THE C++ SIMULATION
@@ -66,7 +66,7 @@ im = plt.pcolormesh(
 
 plt.xlabel(rf'$\tau$', fontsize = fonts)
 plt.ylabel(rf'$\gamma_{{dec}}$', fontsize = fonts)
-plt.title(rf'$N = {num_sites}$, $i= {target_site} $, $\phi_1 = {phi_1}$, $\gamma_2 = {gamma_2}$, $\phi_2$ = {phi_2}', fontsize = fonts)
+#plt.title(rf'$N = {num_sites}$, $i= {target_site} $, $\phi_1 = {phi_1}$, $\gamma_2 = {gamma_2}$, $\phi_2$ = {phi_2}', fontsize = fonts)
 plt.yscale('log')
 plt.xscale('log')
 
@@ -76,5 +76,5 @@ plt.xticks(ticks, tick_labels)
 
 cbar = plt.colorbar(im)
 cbar.set_label(rf'$\langle n\tau \rangle$', fontsize=fonts)
-filename = rf'CPLUSPLUS_tau_vs_gammadec_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi1_{phi_1:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_tau_points}x{num_gammadec_points}'
+filename = rf'notitle_CPLUSPLUS_tau_vs_gammadec_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi1_{phi_1:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_tau_points}x{num_gammadec_points}'
 plt.savefig(filename+'.pdf')
