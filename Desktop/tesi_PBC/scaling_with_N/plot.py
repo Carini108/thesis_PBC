@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Caricamento e pulizia dei dati dal file CSV originale o dal file .txt
+# Caricamento e pulizia dei dati dal file CSV
 df = pd.read_csv('scaling_con_N - Foglio1.csv')
 for col in ['<t> N pari', '<t> N dispari']:
-  df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+    df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
 
 even_data = df[['N', '<t> N pari']].dropna().sort_values('N')
 odd_data = df[['N', '<t> N dispari']].dropna().sort_values('N')
@@ -35,9 +35,9 @@ plt.plot(
 
 # Assi, griglia e legenda (nessun titolo inserito)
 plt.xlabel('$N$')
-plt.ylabel(rf'$\langle t \rangle$')
+plt.ylabel(r'$\langle t_f \rangle$')
 plt.grid(True, linestyle=':', alpha=0.6)
-plt.legend(labels=['odd N', 'even N'], loc='upper left')
+plt.legend(loc='upper left')
 
 plt.tight_layout()
 plt.savefig('scaling_plot.pdf')

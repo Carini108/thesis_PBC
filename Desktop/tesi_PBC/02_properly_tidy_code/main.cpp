@@ -12,7 +12,7 @@ int main() {
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    std::vector<int> site_sizes = {3, 5, 7, 17, 21, 25, 31, 41, 45, 50};
+    std::vector<int> site_sizes = {21};
     for (int varying_size : site_sizes) {
 
         // #####################
@@ -22,16 +22,16 @@ int main() {
         // number of sites
         int num_sites = varying_size;
         // grid resolution
-        int num_phi_points = 200; // horizontal resolution
-        int num_tau_points = 100; // vertical resolution
+        int num_phi_points = 140; // horizontal resolution
+        int num_tau_points = 140; // vertical resolution
         // grid boundaries
         double phi_min = -M_PI / num_sites;
         double phi_max = +M_PI / num_sites;
         double tau_min = 0.02;
-        double tau_max = 1.45;
+        double tau_max = 4.0;
         // time evolution parameters and number of MC runs
         double T_max = 200.0; // cutoff time (limited resource)
-        int M = 1000; // number of samples for the average hitting time
+        int M = 600; // number of samples for the average hitting time
         // couplings and constants relevant to H
         double on_site_energy = 0.0;
         double gamma = 1.; // hopping rate
@@ -46,8 +46,8 @@ int main() {
         // #####################
 
         // local measurement on m-dimensional subspace 
-        const std::vector<int> target_sites = {num_sites/2}; 
-        // const std::vector<int> target_sites = {num_sites/2 -1 , num_sites/2, num_sites/2 + 1}; 
+        // const std::vector<int> target_sites = {num_sites/2}; 
+        const std::vector<int> target_sites = {num_sites/2, num_sites/2 + 1}; 
         MatrixXc proj_P = create_subspace_projector(num_sites, target_sites);
         
         /*

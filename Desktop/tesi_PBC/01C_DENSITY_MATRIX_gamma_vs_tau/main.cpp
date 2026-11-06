@@ -197,8 +197,8 @@ int main() {
                                     "_" + std::to_string(M) + "_runs";
         
         // branch filenaming 
-        std::string filename_results = "RESULTS_" + base_filename + ".txt";
-        std::string filename_optimal_values = "tau_vs_gammadec_" + base_filename + ".txt";
+        std::string filename_results = "notitle_RESULTS_" + base_filename + ".txt";
+        std::string filename_optimal_values = "notitle_tau_vs_gammadec_" + base_filename + ".txt";
 
         // #####################
         // (6.2) saving 2D grid

@@ -46,7 +46,7 @@ im = plt.imshow(
 fonts = 12
 plt.xlabel(rf'$\gamma_2$', fontsize = fonts)
 plt.ylabel(rf'$\tau$', fontsize = fonts)
-plt.title(rf'$N = {num_sites}$, $i={target_site}$, $\phi_1 = \pi/(2N)$', fontsize = fonts)
+plt.title(rf'$N = {num_sites}$, $E={target_site}$, $\phi_1 = \pi/(2N)$', fontsize = fonts)
 
 ticks = [0.0, 0.25, 0.5, 0.75, 1.0]
 tick_labels = [rf'$0.0$', rf'$0.25$', rf'$0.50$', rf'$0.75$', rf'$1.0$']

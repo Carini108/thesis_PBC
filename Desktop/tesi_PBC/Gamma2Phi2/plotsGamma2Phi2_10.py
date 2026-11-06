@@ -47,7 +47,7 @@ survival_probabilities = np.loadtxt('RESULTS_'+filename_base+'.txt')
 # MAKE THE FIGURE
 #####################
 
-plt.figure(figsize=(8,6))
+plt.figure(figsize=(7.5,3.5), constrained_layout=True)
 extent = [phi_2_min, phi_2_max, gamma_2_min, gamma_2_max]
 fonts = 12
 
@@ -61,7 +61,7 @@ im = plt.imshow(
 
 plt.xlabel(rf'$\phi_2$', fontsize = fonts)
 plt.ylabel(rf'$\gamma_2$', fontsize = fonts)
-plt.title(rf'$N = {num_sites}$, $i= | 10 \rangle $, $\tau = {tau}$, $\phi_1$ = {phi_1}', fontsize = fonts)
+#plt.title(rf'$N = {num_sites}$, $i= | 10 \rangle $, $\tau = {tau}$, $\phi_1$ = {phi_1}', fontsize = fonts)
 
 ticks = [-np.pi, -0.5*np.pi, 0, 0.5*np.pi , np.pi]
 tick_labels = [rf'$-\pi$', rf'$-\pi/2$', rf'$0$', rf'$+\pi/2$', rf'$+\pi$']
@@ -71,5 +71,5 @@ cbar = plt.colorbar(im)
 #cbar.set_label(rf'$S(n)$', fontsize=fonts)
 cbar.set_label(rf'$S(T)$', fontsize=fonts)
 PDFfilename = 'CPP_phi2_VS_gamma2_'+filename_base
-plt.savefig(PDFfilename+'.pdf')
+plt.savefig(PDFfilename+'.pdf', bbox_inches='tight', pad_inches=0.05)
 plt.show()

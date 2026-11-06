@@ -10,8 +10,8 @@ import math
 #####################
 
 # LIMITED RESOURCE
-T_max = 540.0; # cutoff time (limited resource)
-# n_Meas = 150; # measurements available (limited resource)
+#T_max = 540.0; # cutoff time (limited resource)
+n_Meas = 150; # measurements available (limited resource)
 
 # graph's features
 num_sites = 21 # size N of the graph 

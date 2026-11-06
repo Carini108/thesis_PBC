@@ -9,30 +9,30 @@ import math
 # PARAMETERS
 #####################
 
-M = 1000 # number of runs
+M = 600 # number of runs
 T_max = 200.0
 
 # graph's features
-num_sites = 50 # size N of the graph 
+num_sites = 21 # size N of the graph 
 gamma_2 = 0.0 
 phi_2 = 0.0
 
 # targets 
-target_site = f'{num_sites // 2}' # SINGLE @ opposite end
+target_site = f'10e11' # SINGLE @ opposite end
 #target_site = f'{num_sites // 2}_{num_sites // 2 + 1}' # DOUBLE @ opposite end
 #target_site = f'{num_sites // 2 - 1}_{num_sites // 2}_{num_sites // 2 + 1}' # TRIPLE @ opposite end
 print(f'Targets: {target_site}')
 #relative_phase = 0.0 #for the superposition
 
 # resolution
-num_phi_points = 200 # horizontal resolution
-num_tau_points = 100 # vertical resolution
+num_phi_points = 140 # horizontal resolution
+num_tau_points = 140 # vertical resolution
 
 # boundaries 
 phi_min = -np.pi/num_sites
 phi_max = +np.pi/num_sites
 tau_min = 0.02
-tau_max = 1.45
+tau_max = 4.0
 
 #####################
 # LOAD DATA FROM THE C++ SIMULATION
@@ -40,7 +40,8 @@ tau_max = 1.45
 
 #mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
 #mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
-mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
+#mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_{gamma_2:.6f}_phi2_{phi_2:.6f}_N_{num_sites}_target_{target_site}_resolution_{num_phi_points}x{num_tau_points}_{M}_runs.txt')
+mean_hitting_times = np.loadtxt(f'RESULTS_mean_hitting_time_PVM_gamma2_0.000000_phi2_0.000000_N_21_target_10_11_resolution_140x140_600_runs.txt')
 
 #####################
 # MAKE THE FIGURE
