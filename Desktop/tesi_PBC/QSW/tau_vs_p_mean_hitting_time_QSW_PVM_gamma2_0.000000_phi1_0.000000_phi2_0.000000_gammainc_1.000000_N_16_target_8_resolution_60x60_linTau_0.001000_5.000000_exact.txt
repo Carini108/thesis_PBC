@@ -1,0 +1,3 @@
+Minimum mean hitting time: 12.4658
+Exact solver (no Monte Carlo)
+Optimal parameters: \tau = 1.44139, p = 0
